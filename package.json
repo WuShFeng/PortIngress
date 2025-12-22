@@ -1,5 +1,5 @@
 {
-  "name": "portingress",
+  "name": "port-ingress",
   "displayName": "PortIngress",
   "description": "Forward the port to the specified domain name.",
   "version": "0.0.1",
@@ -12,12 +12,25 @@
   "activationEvents": [],
   "main": "./out/extension.js",
   "contributes": {
-    "commands": [
-      {
-        "command": "portingress.helloWorld",
-        "title": "Hello World"
-      }
-    ]
+    "viewsContainers": {
+      "panel": [
+        {
+          "id": "portForwardPanel",
+          "title": "PortIngress",
+          "icon": ""
+        }
+      ]
+    },
+    "views": {
+      "portForwardPanel": [
+        {
+          "id": "portForwardBottomView",
+          "name": "Ports",
+          "type": "webview",
+          "icon": ""
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
