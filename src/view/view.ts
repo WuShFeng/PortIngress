@@ -1,38 +1,25 @@
 import * as vscode from 'vscode';
+import { DomainTreeDataProvider } from './domain';
+import { FrpTreeDataProvider } from './frp';
 
-class MyTreeItem extends vscode.TreeItem {
-    constructor(
-        public readonly label: string,
-        public readonly collapsibleState: vscode.TreeItemCollapsibleState,
-        public readonly command?: vscode.Command
-    ) {
-        super(label, collapsibleState);
-    }
-}
+export class TreeDataProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
 
-export class MyTreeDataProvider implements vscode.TreeDataProvider<MyTreeItem> {
+    private _onDidChangeTreeData: vscode.EventEmitter<vscode.TreeItem | undefined | null | void> = new vscode.EventEmitter<vscode.TreeItem | undefined | null | void>();
+    readonly onDidChangeTreeData: vscode.Event<vscode.TreeItem | undefined | null | void> = this._onDidChangeTreeData.event;
+    private domainProvider = new DomainTreeDataProvider();
+    private frpProvider = new FrpTreeDataProvider();
 
-    private _onDidChangeTreeData: vscode.EventEmitter<MyTreeItem | undefined | null | void> = new vscode.EventEmitter<MyTreeItem | undefined | null | void>();
-    readonly onDidChangeTreeData: vscode.Event<MyTreeItem | undefined | null | void> = this._onDidChangeTreeData.event;
-
-    getTreeItem(element: MyTreeItem): vscode.TreeItem {
+    getTreeItem(element: vscode.TreeItem): vscode.TreeItem {
         return element;
     }
 
-    getChildren(element?: MyTreeItem): Thenable<MyTreeItem[]> {
+    async getChildren(element?: vscode.TreeItem): Promise<vscode.TreeItem[]> {
         if (!element) {
-            // 根节点
-            return Promise.resolve([
-                new MyTreeItem("Node 1", vscode.TreeItemCollapsibleState.Collapsed),
-                new MyTreeItem("Node 2", vscode.TreeItemCollapsibleState.None)
-            ]);
-        } else {
-            // 子节点
-            return Promise.resolve([
-                new MyTreeItem(`${element.label} Child 1`, vscode.TreeItemCollapsibleState.None),
-                new MyTreeItem(`${element.label} Child 2`, vscode.TreeItemCollapsibleState.None)
-            ]);
+            const domainRoot = await this.domainProvider.getChildren();
+            const frpRoot = await this.frpProvider.getChildren();
+            return [...domainRoot, ...frpRoot];
         }
+        return Promise.resolve([]);
     }
 
     refresh(): void {
