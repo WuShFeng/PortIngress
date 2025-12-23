@@ -1,144 +1,41 @@
 import * as vscode from 'vscode';
 
-export class PortWebviewProvider implements vscode.WebviewViewProvider {
-    public static readonly viewType = "portForwardBottomView";
-    constructor(private readonly _extensionUri: vscode.Uri) { }
-
-    resolveWebviewView(
-        webviewView: vscode.WebviewView,
-        context: vscode.WebviewViewResolveContext,
-        _token: vscode.CancellationToken
+class MyTreeItem extends vscode.TreeItem {
+    constructor(
+        public readonly label: string,
+        public readonly collapsibleState: vscode.TreeItemCollapsibleState,
+        public readonly command?: vscode.Command
     ) {
-        webviewView.webview.options = {
-            enableScripts: true,
-            localResourceRoots: [this._extensionUri]
-        };
+        super(label, collapsibleState);
+    }
+}
 
-        webviewView.webview.html = this.getHtmlContent();
+export class MyTreeDataProvider implements vscode.TreeDataProvider<MyTreeItem> {
+
+    private _onDidChangeTreeData: vscode.EventEmitter<MyTreeItem | undefined | null | void> = new vscode.EventEmitter<MyTreeItem | undefined | null | void>();
+    readonly onDidChangeTreeData: vscode.Event<MyTreeItem | undefined | null | void> = this._onDidChangeTreeData.event;
+
+    getTreeItem(element: MyTreeItem): vscode.TreeItem {
+        return element;
     }
 
-    private getHtmlContent(): string {
-        return `
-            <!DOCTYPE html>
-            <html lang="en">
-            <head>
-                <meta charset="UTF-8">
-                <title>Ports</title>
-                <style>
-                    body {
-                        padding: 0;
-                        margin: 0;
-                        font-family: var(--vscode-font-family);
-                        font-size: var(--vscode-font-size);
-                        color: var(--vscode-foreground);
-                        background-color: var(--vscode-editor-background);
-                    }
-                    
-                    .table-container {
-                        width: 100%;
-                        overflow-x: auto;
-                    }
-                    
-                    table {
-                        width: 100%;
-                        border-collapse: collapse;
-                        background-color: var(--vscode-editor-background);
-                    }
-                    
-                    th {
-                        background-color: var(--vscode-sideBarSectionHeader-background);
-                        color: var(--vscode-sideBarSectionHeader-foreground);
-                        padding: 8px 12px;
-                        text-align: left;
-                        font-weight: 600;
-                        font-size: 12px;
-                        text-transform: uppercase;
-                        letter-spacing: 0.5px;
-                        border-bottom: 1px solid var(--vscode-tree-tableHeaderBorder);
-                    }
-                    
-                    td {
-                        padding: 8px 12px;
-                        border-bottom: 1px solid var(--vscode-tree-inactiveIndentGuidesStroke);
-                    }
-                    
-                    tr:hover {
-                        background-color: var(--vscode-list-hoverBackground);
-                    }
-                    
-                    .port-column {
-                        width: 100px;
-                    }
-                    
-                    .forwarded-column {
-                        min-width: 150px;
-                    }
-                    
-                    .process-column {
-                        flex: 1;
-                    }
-                    
-                    .origin-column {
-                        width: 150px;
-                    }
-                    
-                    .add-port-btn {
-                        background-color: var(--vscode-button-background);
-                        color: var(--vscode-button-foreground);
-                        border: none;
-                        padding: 6px 12px;
-                        border-radius: 3px;
-                        cursor: pointer;
-                        font-size: 12px;
-                        font-weight: 600;
-                    }
-                    
-                    .add-port-btn:hover {
-                        background-color: var(--vscode-button-hoverBackground);
-                    }
-                    
-                    .origin {
-                        font-size: 12px;
-                        color: var(--vscode-descriptionForeground);
-                    }
-                    
-                    .running-icon {
-                        color: var(--vscode-terminal-ansiGreen);
-                        margin-right: 6px;
-                    }
-                </style>
-            </head>
-            <body>
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th class="port-column">Port</th>
-                                <th class="forwarded-column">Forwarded Address</th>
-                                <th class="process-column">Running Process</th>
-                                <th class="origin-column">Origin</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>
-                                    <span class="running-icon">●</span>
-                                    3000
-                                </td>
-                                <td>localhost:3000</td>
-                                <td></td>
-                                <td class="origin">User Forwarded</td>
-                            </tr>
-                            <tr>
-                                <td colspan="4">
-                                    <button class="add-port-btn">Add Port</button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </body>
-            </html>
-        `;
+    getChildren(element?: MyTreeItem): Thenable<MyTreeItem[]> {
+        if (!element) {
+            // 根节点
+            return Promise.resolve([
+                new MyTreeItem("Node 1", vscode.TreeItemCollapsibleState.Collapsed),
+                new MyTreeItem("Node 2", vscode.TreeItemCollapsibleState.None)
+            ]);
+        } else {
+            // 子节点
+            return Promise.resolve([
+                new MyTreeItem(`${element.label} Child 1`, vscode.TreeItemCollapsibleState.None),
+                new MyTreeItem(`${element.label} Child 2`, vscode.TreeItemCollapsibleState.None)
+            ]);
+        }
+    }
+
+    refresh(): void {
+        this._onDidChangeTreeData.fire();
     }
 }

@@ -1,5 +1,5 @@
 {
-  "name": "port-ingress",
+  "name": "port_ingress",
   "displayName": "PortIngress",
   "description": "Forward the port to the specified domain name.",
   "version": "0.0.1",
@@ -13,21 +13,20 @@
   "main": "./out/extension.js",
   "contributes": {
     "viewsContainers": {
-      "panel": [
+      "activitybar": [
         {
-          "id": "portForwardPanel",
+          "id": "portForwardContainer",
           "title": "PortIngress",
-          "icon": ""
+          "icon": "src/static/log.svg"
         }
       ]
     },
     "views": {
-      "portForwardPanel": [
+      "portForwardContainer": [
         {
-          "id": "portForwardBottomView",
-          "name": "Ports",
-          "type": "webview",
-          "icon": ""
+          "id": "portForwardPanel",
+          "name": "Port Panel",
+          "icon": "src/static/log.svg"
         }
       ]
     }
